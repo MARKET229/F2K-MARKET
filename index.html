@@ -49,7 +49,7 @@ footer{text-align:center;color:#555;font-size:11px;padding:28px}
 </div>
 <div class="toolbar"><input id="search" type="search" placeholder="Rechercher un produit ou une boutique…"></div>
 <main class="grid" id="productsGrid"><div class="empty">Chargement du marché…</div></main>
-<footer>F2K MARKET • F2K MULTISERVICE</footer>
+<footer>F2K MARKET • F2K MULTISERVICE / NET229</footer>
 
 <div class="modal" id="accountModal"><div class="box"><h2 id="accountTitle">Connexion</h2><p>Connecte-toi ou crée un compte. Les droits administrateur doivent être accordés côté serveur, jamais depuis ce formulaire.</p>
 <div class="tabs"><button class="btn primary" id="loginTab">Connexion</button><button class="btn" id="registerTab">Créer un compte</button></div>
@@ -90,10 +90,18 @@ const firebaseConfig = {
   messagingSenderId: "731600982133",
   appId: "1:731600982133:web:e6415894e082a4d3f8683c"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+let app, auth, db, storage;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+} catch (error) {
+  console.error("Initialisation Firebase impossible :", error);
+  const grid = document.getElementById("productsGrid");
+  if (grid) grid.innerHTML = '<div class="empty">Firebase ne peut pas démarrer. Vérifie la configuration du projet et les domaines autorisés dans Firebase Authentication.</div>';
+  throw error;
+}
 const ADMIN_EMAIL = "franckadre7@gmail.com"; // Adresse de référence uniquement : les droits réels viennent du jeton Firebase.
 const $ = id => document.getElementById(id);
 
@@ -143,7 +151,7 @@ $("accountForm").addEventListener("submit",async e=>{
   }catch(err){console.error(err);notice(authError(err),true);}finally{button.disabled=false;}
 });
 function setAuthMode(mode){authMode=mode;$("accountTitle").textContent=mode==="login"?"Connexion":"Créer un compte";$("authSubmit").textContent=mode==="login"?"Se connecter":"Créer mon compte";$("authName").style.display=mode==="login"?"none":"block";$("authName").required=mode==="register";$("loginTab").classList.toggle("primary",mode==="login");$("registerTab").classList.toggle("primary",mode==="register");}
-function authError(e){const code=e?.code||"";const messages={"auth/email-already-in-use":"Cette adresse e-mail possède déjà un compte.","auth/invalid-email":"Adresse e-mail invalide.","auth/weak-password":"Mot de passe trop faible (6 caractères minimum).","auth/invalid-credential":"Identifiants incorrects.","auth/network-request-failed":"Problème de connexion réseau.","permission-denied":"Accès refusé par les règles Firebase.","storage/unauthorized":"Téléversement refusé par les règles Firebase Storage."};return messages[code]||e?.message||"Une erreur est survenue.";}
+function authError(e){const code=e?.code||"";const messages={"auth/email-already-in-use":"Cette adresse e-mail possède déjà un compte.","auth/invalid-email":"Adresse e-mail invalide.","auth/weak-password":"Mot de passe trop faible (6 caractères minimum).","auth/invalid-credential":"Identifiants incorrects.","auth/network-request-failed":"Problème de connexion réseau.","permission-denied":"Accès refusé par les règles Firebase. Vérifie les autorisations Firestore.","unavailable":"Firebase est temporairement indisponible. Vérifie ta connexion Internet.","failed-precondition":"La requête Firestore nécessite une configuration ou un index supplémentaire.","storage/unauthorized":"Téléversement refusé par les règles Firebase Storage."};return messages[code]||e?.message||"Une erreur est survenue.";}
 onAuthStateChanged(auth, async user=>{
   currentUser=user; isAdmin=false;
   $("accountBtn").textContent=user?(user.displayName||user.email||"Mon compte"):"Connexion";
@@ -179,15 +187,38 @@ $("productForm").addEventListener("submit",async e=>{
   }catch(err){console.error(err);notice("Publication refusée : "+authError(err),true);}finally{button.disabled=false;}
 });
 async function loadData(){
-  $("productsGrid").innerHTML='<div class="empty">Chargement du marché…</div>';
-  try{
-    const [ss,ps]=await Promise.all([getDocs(query(collection(db,"shops"),limit(500))),getDocs(query(collection(db,"products"),where("active","==",true),limit(1000)))]);
-    shops=ss.docs.map(d=>({id:d.id,...d.data()}));products=ps.docs.map(d=>({id:d.id,...d.data()}));
-    $("shopCount").textContent=shops.length;$("productCount").textContent=products.length;
-    // Le nombre de ventes reste indisponible tant qu'un compteur public sécurisé n'est pas alimenté par le backend.
-    $("saleCount").textContent="—";
-    renderProducts();renderShops();
-  }catch(err){console.error("Chargement Firestore :",err);$("productsGrid").innerHTML='<div class="empty">Impossible de charger les produits. Vérifie la connexion, les noms de collections et les règles Firestore.</div>';notice("Erreur de chargement : "+authError(err),true);}
+  const grid=$("productsGrid");
+  grid.innerHTML='<div class="empty">Chargement du marché…</div>';
+  // Interroger les collections séparément : si une requête est refusée, l'autre
+  // peut tout de même réussir et le site affiche le diagnostic correspondant.
+  const [shopsResult, productsResult] = await Promise.allSettled([
+    getDocs(query(collection(db,"shops"),limit(500))),
+    getDocs(query(collection(db,"products"),where("active","==",true),limit(1000)))
+  ]);
+  let problems=[];
+  if(shopsResult.status === "fulfilled"){
+    shops=shopsResult.value.docs.map(d=>({id:d.id,...d.data()}));
+    $("shopCount").textContent=shops.length;
+  }else{
+    shops=[]; $("shopCount").textContent="!";
+    problems.push("boutiques : "+authError(shopsResult.reason));
+    console.error("Lecture de shops refusée/échouée :",shopsResult.reason);
+  }
+  if(productsResult.status === "fulfilled"){
+    products=productsResult.value.docs.map(d=>({id:d.id,...d.data()}));
+    $("productCount").textContent=products.length;
+  }else{
+    products=[]; $("productCount").textContent="!";
+    problems.push("produits : "+authError(productsResult.reason));
+    console.error("Lecture de products refusée/échouée :",productsResult.reason);
+  }
+  // Le nombre de ventes reste indisponible tant qu'un compteur public sécurisé n'est pas alimenté par le backend.
+  $("saleCount").textContent="—";
+  renderProducts(); renderShops();
+  if(problems.length){
+    grid.insertAdjacentHTML("beforeend",'<div class="empty" style="color:#ff9b70">Certaines données ne peuvent pas être chargées.<br>'+problems.map(esc).join("<br>")+'<br>Vérifie Firestore Database, les règles et les noms de collections.</div>');
+    notice("Chargement partiel : "+problems.join(" | "),true);
+  }
 }
 function renderProducts(){
   let list=products.filter(p=>p.active!==false);
