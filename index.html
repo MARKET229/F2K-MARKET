@@ -66,17 +66,17 @@ footer{text-align:center;color:#555;font-size:11px;padding:28px}
 <label class="chk" id="termsRow" style="display:none"><input type="checkbox" id="authTerms"><span id="termsText"></span></label><button class="btn primary" id="authSubmit" type="submit" style="width:100%">Se connecter</button></form>
 <div class="modalactions"><button class="btn" id="resetPasswordBtn" type="button">Mot de passe oublié</button><button class="btn" data-close="accountModal" type="button">Fermer</button></div></div></div>
 
-<div class="modal" id="shopModal"><div class="box"><h2>Créer une boutique</h2><p>Une boutique sera associée au compte connecté. Les règles Firestore doivent également vérifier cette propriété.</p>
-<form id="shopForm"><input id="shopName" maxlength="80" placeholder="Nom de la boutique" required><input id="shopWhatsapp" maxlength="25" placeholder="WhatsApp, ex. +229XXXXXXXX"><select id="shopType"><option value="phys">Produits physiques</option><option value="dig">Produits digitaux</option></select><input id="shopCity" maxlength="100" placeholder="Ville / Pays"><textarea id="shopDesc" maxlength="1000" placeholder="Description"></textarea><label class="chk"><input type="checkbox" id="shopTerms" required>J'ai lu et j'accepte les <a href="#" data-info="cguV">CGU vendeurs</a> (commission de 10 %, retraits, produits interdits).</label><div class="modalactions"><button class="btn primary" type="submit">Créer</button><button class="btn" data-close="shopModal" type="button">Fermer</button></div></form></div></div>
+<div class="modal" id="shopModal"><div class="box"><h2>Créer une boutique</h2><p>Choisis le type : boutique physique, en ligne ou mixte.</p>
+<form id="shopForm"><input id="shopName" maxlength="80" placeholder="Nom de la boutique" required><input id="shopWhatsapp" maxlength="25" placeholder="WhatsApp, ex. +229XXXXXXXX"><select id="shopType"><option value="phys">🏬 Boutique physique</option><option value="dig">🌐 Boutique en ligne</option><option value="mix">🔀 Boutique mixte (physique + en ligne)</option></select><input id="shopCity" maxlength="100" placeholder="Ville / Pays"><textarea id="shopDesc" maxlength="1000" placeholder="Description"></textarea><label class="chk"><input type="checkbox" id="shopTerms" required>J'ai lu et j'accepte les <a href="#" data-info="cguV">CGU vendeurs</a> (commission de 10 %, retraits, produits interdits).</label><div class="modalactions"><button class="btn primary" type="submit">Créer</button><button class="btn" data-close="shopModal" type="button">Fermer</button></div></form></div></div>
 
-<div class="modal" id="productModal"><div class="box"><h2>Publier un produit</h2><p>Formats d'image acceptés : JPEG, PNG ou WebP, maximum 5 Mo. Le stockage et les règles doivent être configurés dans Firebase.</p>
+<div class="modal" id="productModal"><div class="box"><h2>Publier un produit</h2><select id="productShop" style="display:none"></select><p id="quota"></p><p>Image : JPEG, PNG ou WebP, 5 Mo maximum.</p>
 <form id="productForm"><input id="productName" maxlength="120" placeholder="Nom du produit" required><div class="row"><input id="productPrice" type="number" min="1" max="1000000000" step="1" placeholder="Prix en FCFA" required><select id="productType"><option value="phys">Physique</option><option value="dig">Digital</option></select></div><input id="productImage" type="file" accept="image/jpeg,image/png,image/webp"><input id="productLink" type="url" maxlength="1500" placeholder="Lien du produit digital (facultatif)"><textarea id="productDesc" maxlength="1000" placeholder="Description"></textarea><div class="modalactions"><button class="btn primary" type="submit">Publier</button><button class="btn" data-close="productModal" type="button">Fermer</button></div></form></div></div>
 
 <div class="modal" id="shopsModal"><div class="box"><h2>Boutiques</h2><div id="shopsList"></div><button class="btn" data-close="shopsModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="cartModal"><div class="box"><h2>Mon panier</h2><div id="cartList"></div><p id="cartTotal"></p><button class="btn primary" id="checkoutBtn" style="width:100%">Continuer vers le paiement</button><p style="margin-top:10px">Le paiement en ligne arrive bientôt. Pour l'instant, contacte chaque vendeur via WhatsApp pour commander.</p><button class="btn" data-close="cartModal" style="width:100%">Fermer</button></div></div>
 <div class="modal" id="ordersModal"><div class="box"><h2>Mes commandes</h2><div id="ordersList">Connecte-toi pour voir tes commandes.</div><button class="btn" data-close="ordersModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
-<div class="modal" id="chatModal"><div class="box"><h2>Messagerie</h2><p>La messagerie interne nécessite une conversation autorisée et des règles Firestore qui limitent l'accès aux participants.</p><div id="chatContent">Sélectionne une boutique puis contacte le vendeur par WhatsApp, ou déploie le backend et les règles fournis avec le projet.</div><button class="btn" data-close="chatModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
-<div class="modal" id="adminModal"><div class="box"><h2>Administration</h2><p>L'accès administrateur est réservé aux comptes auxquels un administrateur système a attribué le rôle dans Firebase Admin SDK. Le navigateur ne peut pas s'accorder ce rôle.</p><div id="adminContent">Connecte-toi avec un compte autorisé.</div><button class="btn" data-close="adminModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
+<div class="modal" id="chatModal"><div class="box"><h2>Messagerie</h2><p>La messagerie arrive bientôt.</p><div id="chatContent">Contacte le vendeur par WhatsApp en attendant.</div><button class="btn" data-close="chatModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
+<div class="modal" id="adminModal"><div class="box"><h2>Administration</h2><p>Espace réservé à l'administrateur du site.</p><div id="adminContent">Connecte-toi avec un compte autorisé.</div><button class="btn" data-close="adminModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="infoModal"><div class="box"><h2 id="infoTitle"></h2><div id="infoBody"></div><button class="btn" data-close="infoModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="detailModal"><div class="box"><div id="detailBody"></div><button class="btn" data-close="detailModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="dashModal"><div class="box"><h2>Mon espace vendeur</h2><div id="dashContent"></div><button class="btn" data-close="dashModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
@@ -112,10 +112,10 @@ try {
 } catch (error) {
   console.error("Initialisation Firebase impossible :", error);
   const grid = document.getElementById("productsGrid");
-  if (grid) grid.innerHTML = '<div class="empty">Firebase ne peut pas démarrer. Vérifie la configuration du projet et les domaines autorisés dans Firebase Authentication.</div>';
+  if (grid) grid.innerHTML = '<div class="empty">Le site ne peut pas démarrer pour le moment. Réessaie plus tard.</div>';
   throw error;
 }
-const ADMIN_EMAIL = "franckadre7@gmail.com"; // Adresse de référence uniquement : les droits réels viennent du jeton Firebase.
+const ADMIN_EMAIL = "franckadre7@gmail.com"; // E-mail de l'administrateur (doit être confirmé)
 const ADMIN_WA = "229XXXXXXXX"; // TON numéro WhatsApp (chiffres seulement, avec l'indicatif 229)
 const TERMS_VERSION="2026-10",MIN_WITHDRAW=5000,WITHDRAW_OPS=["MTN MoMo","Moov Money","Celtiis Cash"];
 const COMMISSION = 10; // % prélevé sur les ventes payées en ligne
@@ -124,7 +124,7 @@ const PRICES = {pro:5000,premium:15000,feat7:2000,feat30:5000,verified:3000}; //
 const $ = id => document.getElementById(id);
 
 let currentUser = null;
-let isAdmin = false, myProfile = null;
+let isAdmin = false, myProfile = null, allShops = [], adminTab = "wd";
 let shops = [];
 let products = [];
 let cart = JSON.parse(localStorage.getItem("f2k_cart") || "[]");
@@ -149,6 +149,7 @@ $("accountBtn").addEventListener("click",()=>{if(currentUser){if(confirm("Voulez
 $("adminBtn").addEventListener("click",()=>{renderAdminPanel();openModal("adminModal");});
 $("sellBtn").addEventListener("click",()=>{if(!currentUser){openModal("accountModal");notice("Connecte-toi avant de créer une boutique.");return;}
   if(!currentUser.emailVerified){if(confirm("Confirme d'abord ton adresse e-mail pour ouvrir une boutique. Renvoyer l'e-mail de confirmation ?"))sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Clique le lien, puis recharge la page.")).catch(e=>notice(authError(e),true));return;}
+  if(allShops.some(x=>x.ownerUid===currentUser.uid)&&!isAdmin){openProduct();return;}
   if(myProfile){if(!$("shopWhatsapp").value)$("shopWhatsapp").value=myProfile.phone||"";if(!$("shopCity").value)$("shopCity").value=[myProfile.city,myProfile.country].filter(Boolean).join(", ");}
   openModal("shopModal");});
 $("search").addEventListener("input",e=>{search=e.target.value.trim().toLocaleLowerCase("fr");renderProducts();});
@@ -175,7 +176,7 @@ $("accountForm").addEventListener("submit",async e=>{
   }catch(err){console.error(err);notice(authError(err),true);}finally{button.disabled=false;}
 });
 function setAuthMode(mode){authMode=mode;$("accountTitle").textContent=mode==="login"?"Connexion":"Créer un compte";$("authSubmit").textContent=mode==="login"?"Se connecter":"Créer mon compte";$("authName").style.display=mode==="login"?"none":"block";$("authName").required=mode==="register";$("termsRow").style.display=mode==="register"?"block":"none";$("authTerms").required=mode==="register";$("regExtra").style.display=mode==="register"?"block":"none";["authPhone","authCity","authCountry"].forEach(i=>$(i).required=mode==="register");updateTerms();$("loginTab").classList.toggle("primary",mode==="login");$("registerTab").classList.toggle("primary",mode==="register");}
-function authError(e){const code=e?.code||"";const messages={"auth/email-already-in-use":"Cette adresse e-mail possède déjà un compte.","auth/invalid-email":"Adresse e-mail invalide.","auth/weak-password":"Mot de passe trop faible (6 caractères minimum).","auth/invalid-credential":"Identifiants incorrects.","auth/network-request-failed":"Problème de connexion réseau.","permission-denied":"Accès refusé par les règles Firebase. Vérifie les autorisations Firestore.","unavailable":"Firebase est temporairement indisponible. Vérifie ta connexion Internet.","failed-precondition":"La requête Firestore nécessite une configuration ou un index supplémentaire.","storage/unauthorized":"Téléversement refusé par les règles Firebase Storage."};return messages[code]||e?.message||"Une erreur est survenue.";}
+function authError(e){const code=e?.code||"";const messages={"auth/email-already-in-use":"Cette adresse e-mail possède déjà un compte.","auth/invalid-email":"Adresse e-mail invalide.","auth/weak-password":"Mot de passe trop faible (6 caractères minimum).","auth/invalid-credential":"Identifiants incorrects.","auth/network-request-failed":"Problème de connexion réseau.","permission-denied":"Action non autorisée. Vérifie ton compte ou réessaie plus tard.","unavailable":"Service momentanément indisponible. Vérifie ta connexion Internet.","failed-precondition":"Service en cours de configuration. Réessaie plus tard.","storage/unauthorized":"Envoi de l'image refusé (format ou taille)."};return messages[code]||e?.message||"Une erreur est survenue.";}
 onAuthStateChanged(auth, async user=>{
   currentUser=user; isAdmin=false;
   $("accountBtn").textContent=user?(user.displayName||user.email||"Mon compte"):"Connexion";
@@ -185,6 +186,7 @@ onAuthStateChanged(auth, async user=>{
   // L'adresse permet d'afficher le panneau d'état, mais ne donne jamais les privilèges.
   if(isAdmin || user.email?.toLowerCase()===ADMIN_EMAIL){$("adminBtn").style.display="inline-block";}
   try{const pr=await getDoc(doc(db,"profiles",user.uid));myProfile=pr.exists()?pr.data():null;}catch(e){}
+  if(myProfile?.suspended===true){notice("Ton compte est suspendu. Contacte l'administration.",true);signOut(auth);return;}
   if(!user.emailVerified)notice("Confirme ton adresse e-mail (clique le lien reçu, vérifie aussi les spams), puis recharge la page.");
 });
 $("shopForm").addEventListener("submit",async e=>{
@@ -192,14 +194,15 @@ $("shopForm").addEventListener("submit",async e=>{
   const button=e.submitter;button.disabled=true;
   try{
     const result=await addDoc(collection(db,"shops"),{ownerUid:currentUser.uid,name:$("shopName").value.trim(),whatsapp:$("shopWhatsapp").value.trim(),type:$("shopType").value,city:$("shopCity").value.trim(),desc:$("shopDesc").value.trim(),sellerTermsVersion:TERMS_VERSION,sellerTermsAt:serverTimestamp(),createdAt:serverTimestamp()});
-    e.target.reset();closeModal("shopModal");notice("Boutique créée.");await loadData();openModal("productModal");$("productModal").dataset.shopId=result.id;
+    e.target.reset();closeModal("shopModal");notice("Boutique créée.");try{const w0=doc(db,"wallets",currentUser.uid);if(!(await getDoc(w0)).exists())await setDoc(w0,{balance:0,ownerUid:currentUser.uid});}catch(e){}
+    await loadData();openProduct(result.id);
   }catch(err){console.error(err);notice("Création de boutique refusée : "+authError(err),true);}finally{button.disabled=false;}
 });
 $("productForm").addEventListener("submit",async e=>{
   e.preventDefault();if(!currentUser)return notice("Connecte-toi d'abord.",true);
-  const shopId=$("productModal").dataset.shopId||shops.find(s=>s.ownerUid===currentUser.uid)?.id;
+  const shopId=$("productShop").value;
   if(!shopId)return notice("Crée une boutique avant de publier un produit.",true);
-  {const sh=shops.find(x=>x.id===shopId);const mx=(PLANS[sh?.plan]||PLANS.free).max;if(products.filter(p=>p.shopId===shopId).length>=mx)return notice("Limite de "+mx+" produits atteinte pour ton plan. Voir Tarifs.",true);}
+  if(!isAdmin){const sh=allShops.find(x=>x.id===shopId);const mx=(PLANS[sh?.plan]||PLANS.free).max;const cnt=(await getDocs(query(collection(db,"products"),where("shopId","==",shopId),limit(1000)))).size;if(cnt>=mx)return notice("Limite de "+mx+" produits atteinte pour ton plan. Voir Tarifs.",true);}
   const name=$("productName").value.trim(),price=Number($("productPrice").value),type=$("productType").value,file=$("productImage").files[0],link=$("productLink").value.trim(),description=$("productDesc").value.trim();
   if(!name||!Number.isSafeInteger(price)||price<=0)return notice("Nom et prix valide obligatoires.",true);
   if(file&&(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024))return notice("Image invalide : JPEG, PNG ou WebP, maximum 5 Mo.",true);
@@ -223,7 +226,7 @@ async function loadData(){
   ]);
   let problems=[];
   if(shopsResult.status === "fulfilled"){
-    shops=shopsResult.value.docs.map(d=>({id:d.id,...d.data()}));
+    allShops=shopsResult.value.docs.map(d=>({id:d.id,...d.data()}));shops=allShops.filter(x=>x.active!==false);
     $("shopCount").textContent=shops.length;
   }else{
     shops=[]; $("shopCount").textContent="!";
@@ -231,7 +234,7 @@ async function loadData(){
     console.error("Lecture de shops refusée/échouée :",shopsResult.reason);
   }
   if(productsResult.status === "fulfilled"){
-    products=productsResult.value.docs.map(d=>({id:d.id,...d.data()}));
+    products=productsResult.value.docs.map(d=>({id:d.id,...d.data()})).filter(p=>shopsResult.status!=="fulfilled"||shops.some(x=>x.id===p.shopId));
     $("productCount").textContent=products.length;
   }else{
     products=[]; $("productCount").textContent="!";
@@ -242,7 +245,7 @@ async function loadData(){
   $("saleCount").textContent="—";
   renderProducts(); renderShops();
   if(problems.length){
-    grid.insertAdjacentHTML("beforeend",'<div class="empty" style="color:#ff9b70">Certaines données ne peuvent pas être chargées.<br>'+problems.map(esc).join("<br>")+'<br>Vérifie Firestore Database, les règles et les noms de collections.</div>');
+    grid.insertAdjacentHTML("beforeend",'<div class="empty" style="color:#ff9b70">Certaines données ne peuvent pas être chargées.<br>'+problems.map(esc).join("<br>")+'<br>Réessaie dans un instant ou recharge la page.</div>');
     notice("Chargement partiel : "+problems.join(" | "),true);
   }
 }
@@ -265,8 +268,9 @@ function renderProducts(){
 function renderAdminPanel(){
   const el=$("adminContent");
   if(!currentUser){el.textContent="Connecte-toi avec le compte administrateur.";return;}
-  if(!isAdmin){
-    el.innerHTML=`<p><b>Compte :</b> ${esc(currentUser.email||"")}</p><p>Le rôle administrateur n'est pas encore présent dans le jeton Firebase. L'adresse e-mail seule ne donne aucun droit spécial.</p><p>Dans un environnement serveur sécurisé, attribue la custom claim <code>admin: true</code> à l'utilisateur ${esc(currentUser.uid)} avec le Firebase Admin SDK, puis déconnecte-toi et reconnecte-toi.</p>`;
+  if(!isAdmin){const mail=currentUser.email?.toLowerCase()===ADMIN_EMAIL;
+    el.innerHTML=mail?`<p>Ton adresse est reconnue. Confirme-la pour activer l'administration : clique le lien reçu par e-mail, puis le bouton ci-dessous.</p><button class="btn primary" id="aRs" style="width:100%;margin-bottom:8px">Renvoyer l'e-mail de confirmation</button><button class="btn" id="aRf" style="width:100%">J'ai confirmé, actualiser</button>`:"<p>Accès réservé à l'administrateur.</p>";
+    if(mail){$("aRs").onclick=()=>sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Vérifie aussi les spams.")).catch(e=>notice(authError(e),true));$("aRf").onclick=async()=>{try{await currentUser.reload();await currentUser.getIdToken(true);isAdmin=currentUser.emailVerified;renderAdminPanel();}catch(e){notice(authError(e),true);}};}
     return;
   }
   adminLoad(el);
@@ -314,12 +318,12 @@ function showInfo(k){const [t,b]=INFO[k];$("infoTitle").textContent=t;$("infoBod
 document.querySelectorAll("[data-info]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();showInfo(a.dataset.info);}));
 $("sort").addEventListener("change",renderProducts);$("maxPrice").addEventListener("input",renderProducts);
 $("dashBtn").addEventListener("click",openDash);
-async function openDash(){openModal("dashModal");const el=$("dashContent");const sh=shops.find(x=>x.ownerUid===currentUser.uid);
+async function openDash(){openModal("dashModal");const el=$("dashContent");const sh=allShops.find(x=>x.ownerUid===currentUser.uid);
   if(!sh){el.innerHTML="<div class='empty'>Tu n'as pas encore de boutique. Clique sur + Vendre.</div>";return;}
   el.textContent="Chargement…";
   try{const r=await getDocs(query(collection(db,"products"),where("ownerUid","==",currentUser.uid),limit(200)));const mine=r.docs.map(d=>({id:d.id,...d.data()}));const pl=PLANS[sh.plan]||PLANS.free;
-   el.innerHTML=`<p><b>${esc(sh.name)}</b>${sh.verified===true?" ✔":""} · Plan ${pl.name} · ${mine.length}/${pl.max} produits</p><button class="btn" data-info="tarifs" style="width:100%;margin-bottom:8px">Voir les tarifs / passer Pro</button>`+(mine.map(p=>`<div class="listrow"><div><b>${esc(p.name)}</b><small>${money(p.price)} · ${p.active===false?"Masqué":"En ligne"}${p.featured===true?" · ⭐":""}</small></div><div class="mini"><button class="btn" data-tg="${p.id}">${p.active===false?"Activer":"Masquer"}</button><button class="btn" data-del="${p.id}">Suppr.</button><button class="btn" data-ft="${p.id}">⭐</button></div></div>`).join("")||"<div class='empty'>Aucun produit.</div>");
-   el.querySelector("[data-info]").onclick=()=>{closeModal("dashModal");showInfo("tarifs");};
+   el.innerHTML=`<p><b>${esc(sh.name)}</b>${sh.verified===true?" ✔":""} · Plan ${pl.name} · ${mine.length}/${pl.max} produits</p><button class="btn primary" id="dAdd" style="width:100%;margin-bottom:8px">+ Ajouter un produit</button><button class="btn" data-info="tarifs" style="width:100%;margin-bottom:8px">Voir les tarifs / passer Pro</button>`+(mine.map(p=>`<div class="listrow"><div><b>${esc(p.name)}</b><small>${money(p.price)} · ${p.active===false?"Masqué":"En ligne"}${p.featured===true?" · ⭐":""}</small></div><div class="mini"><button class="btn" data-tg="${p.id}">${p.active===false?"Activer":"Masquer"}</button><button class="btn" data-del="${p.id}">Suppr.</button><button class="btn" data-ft="${p.id}">⭐</button></div></div>`).join("")||"<div class='empty'>Aucun produit.</div>");
+   $("dAdd").onclick=()=>{closeModal("dashModal");openProduct(sh.id);};el.querySelector("[data-info]").onclick=()=>{closeModal("dashModal");showInfo("tarifs");};
    const by=id=>mine.find(x=>x.id===id);
    el.querySelectorAll("[data-tg]").forEach(b=>b.onclick=async()=>{try{await updateDoc(doc(db,"products",b.dataset.tg),{active:by(b.dataset.tg).active===false});await loadData();openDash();}catch(e){notice(authError(e),true);}});
    el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Supprimer ce produit ?"))return;try{await deleteDoc(doc(db,"products",b.dataset.del));await loadData();openDash();}catch(e){notice(authError(e),true);}});
@@ -328,7 +332,7 @@ async function openDash(){openModal("dashModal");const el=$("dashContent");const
   }catch(e){el.textContent=authError(e);}}
 async function renderWallet(el,sh){
   let bal=0,list=[];
-  try{const w=await getDoc(doc(db,"wallets",currentUser.uid));bal=w.exists()?Number(w.data().balance)||0:0;
+  try{let w=await getDoc(doc(db,"wallets",currentUser.uid));if(!w.exists()){await setDoc(doc(db,"wallets",currentUser.uid),{balance:0,ownerUid:currentUser.uid});w=await getDoc(doc(db,"wallets",currentUser.uid));}bal=w.exists()?Number(w.data().balance)||0:0;
     const r=await getDocs(query(collection(db,"withdrawals"),where("ownerUid","==",currentUser.uid),limit(50)));
     list=r.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}catch(e){console.error(e);}
   const pend=list.filter(x=>["pending","approved"].includes(x.status)).reduce((n,x)=>n+x.amount,0),avail=Math.max(0,bal-pend);
@@ -343,19 +347,54 @@ async function renderWallet(el,sh){
 function updateTerms(){const sel=$("authRole").value==="seller";$("termsText").innerHTML=sel?"J'ai lu et j'accepte les <a href='#' data-info='cguV'>CGU vendeurs</a>, les <a href='#' data-info='cguA'>CGU acheteurs</a> et la <a href='#' data-info='privacy'>confidentialité</a>.":"J'ai lu et j'accepte les <a href='#' data-info='cguA'>CGU acheteurs</a> et la <a href='#' data-info='privacy'>confidentialité</a>.";}
 $("authRole").addEventListener("change",updateTerms);
 $("termsRow").addEventListener("click",e=>{const a=e.target.closest("a[data-info]");if(a){e.preventDefault();showInfo(a.dataset.info);}});
+async function openProduct(pre){
+  const mine=allShops.filter(x=>x.ownerUid===currentUser.uid);
+  if(!mine.length){notice("Crée d'abord une boutique.",true);return;}
+  const sel=$("productShop");sel.innerHTML=mine.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");if(pre)sel.value=pre;sel.style.display=mine.length>1?"block":"none";
+  const q=async()=>{const sh=mine.find(x=>x.id===sel.value)||mine[0];const mx=(PLANS[sh.plan]||PLANS.free).max;try{const n=(await getDocs(query(collection(db,"products"),where("shopId","==",sh.id),limit(1000)))).size;$("quota").textContent=isAdmin?"Produits : "+n+" (illimité pour l'administrateur)":"Produits : "+n+" / "+mx+" (plan "+(PLANS[sh.plan]||PLANS.free).name+")";}catch(e){$("quota").textContent="";}};
+  sel.onchange=q;q();openModal("productModal");
+}
+async function delShop(id){const r=await getDocs(query(collection(db,"products"),where("shopId","==",id),limit(400)));const b=writeBatch(db);r.docs.forEach(d=>b.delete(d.ref));b.delete(doc(db,"shops",id));await b.commit();}
+async function setUser(u,off){const b=writeBatch(db);b.update(doc(db,"profiles",u.id),{suspended:off});allShops.filter(x=>x.ownerUid===u.id).forEach(x=>b.update(doc(db,"shops",x.id),{active:!off}));await b.commit();}
+async function delUser(u){const [ps,hs]=await Promise.all([getDocs(query(collection(db,"products"),where("ownerUid","==",u.id),limit(200))),getDocs(query(collection(db,"shops"),where("ownerUid","==",u.id),limit(50)))]);const b=writeBatch(db);ps.docs.concat(hs.docs).forEach(d=>b.delete(d.ref));b.delete(doc(db,"profiles",u.id));await b.commit();}
 async function adminLoad(el){
-  el.textContent="Chargement…";
-  try{const r=await getDocs(query(collection(db,"withdrawals"),where("status","in",["pending","approved"]),limit(100)));
-    const w=r.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
-    const sn=x=>shops.find(h=>h.id===x.shopId)?.name||x.ownerUid;
-    el.innerHTML=`<p>Boutiques : <b>${shops.length}</b> · Produits actifs : <b>${products.filter(p=>p.active!==false).length}</b></p><h3>Retraits à traiter</h3>`+(w.map(x=>`<div class="listrow"><div><b>${money(x.amount)}</b> · ${esc(sn(x))}<small>${esc(x.operator)} · ${esc(x.phone)}</small><small>${x.status==="pending"?"⏳ En attente de ta confirmation":"✔ Confirmé — en attente d'envoi"}</small></div><div class="mini">${x.status==="pending"?`<button class="btn primary" data-ap="${x.id}">Confirmer</button><button class="btn" data-rj="${x.id}">Refuser</button>`:`<button class="btn primary" data-pd="${x.id}">Marquer payé</button>`}</div></div>`).join("")||"<div class='empty'>Aucun retrait en attente.</div>")+"<p style='margin-top:10px'>Confirmer = tu autorises le retrait. L'envoi par FedaPay se fait ensuite via une fonction serveur ; en attendant, envoie l'argent toi-même puis clique « Marquer payé » : le solde du vendeur est alors débité.</p>";
-    const by=id=>w.find(x=>x.id===id);
-    const act=async(id,fn)=>{try{await fn(by(id));notice("Fait.");adminLoad(el);}catch(e){notice(authError(e),true);}};
-    const st=(id,v)=>updateDoc(doc(db,"withdrawals",id),{status:v,reviewedBy:currentUser.uid,reviewedAt:serverTimestamp()});
-    el.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>act(b.dataset.ap,x=>st(x.id,"approved")));
-    el.querySelectorAll("[data-rj]").forEach(b=>b.onclick=()=>act(b.dataset.rj,x=>st(x.id,"rejected")));
-    el.querySelectorAll("[data-pd]").forEach(b=>b.onclick=()=>act(b.dataset.pd,x=>{const bt=writeBatch(db);bt.update(doc(db,"withdrawals",x.id),{status:"paid",paidAt:serverTimestamp()});bt.update(doc(db,"wallets",x.ownerUid),{balance:increment(-x.amount)});return bt.commit();}));
-  }catch(e){el.textContent=authError(e);}
+  el.innerHTML=`<div class="mini" style="flex-wrap:wrap;margin-bottom:10px">${[["wd","Retraits"],["shops","Boutiques"],["prods","Produits"],["users","Utilisateurs"],["rep","Signalements"]].map(([k,l])=>`<button class="btn ${k===adminTab?"primary":""}" data-tab="${k}">${l}</button>`).join("")}</div><div id="adminBody">Chargement…</div>`;
+  el.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{adminTab=b.dataset.tab;adminLoad(el);});
+  const body=$("adminBody"),T=adminTab;
+  const G=async(c,q)=>(await getDocs(q||query(collection(db,c),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}));
+  const sn=id=>esc(allShops.find(x=>x.id===id)?.name||"—");
+  const row=(t,sub,btns)=>`<div class="listrow"><div><b>${t}</b><small>${sub}</small></div><div class="mini" style="flex-wrap:wrap;justify-content:flex-end">${btns}</div></div>`;
+  const B=(a,l,c)=>`<button class="btn ${c||""}" data-a="${a}">${l}</button>`;
+  const TY={phys:"Physique",dig:"En ligne",mix:"Mixte"};
+  try{
+    let L=[],h="";
+    if(T==="wd"){L=await G("withdrawals",query(collection(db,"withdrawals"),where("status","in",["pending","approved"]),limit(100)));L.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+      h=L.map(x=>row(money(x.amount)+" · "+sn(x.shopId),esc(x.operator)+" · "+esc(x.phone)+" · "+(x.status==="pending"?"⏳ à confirmer":"✔ confirmé, à envoyer"),x.status==="pending"?B("ap|"+x.id,"Confirmer","primary")+B("rj|"+x.id,"Refuser"):B("pd|"+x.id,"Marquer payé","primary"))).join("");}
+    else if(T==="shops"){L=allShops;
+      h=`<p><button class="btn primary" id="aNew" style="width:100%">+ Créer une boutique (physique, en ligne ou mixte)</button></p>`+L.map(x=>row(esc(x.name)+(x.verified===true?" ✔":"")+(x.active===false?" · désactivée":""),(TY[x.type]||"")+" · "+esc(x.city||""),B("sa|"+x.id,x.active===false?"Activer":"Désactiver")+B("sv|"+x.id,x.verified===true?"Retirer ✔":"Vérifier ✔")+`<select data-plan="${x.id}">${Object.keys(PLANS).map(k=>`<option value="${k}" ${(x.plan||"free")===k?"selected":""}>${PLANS[k].name}</option>`).join("")}</select>`+B("sd|"+x.id,"Supprimer"))).join("");}
+    else if(T==="prods"){L=await G("products");
+      h=L.map(p=>row(esc(p.name),money(p.price)+" · "+sn(p.shopId)+" · "+(p.active===false?"masqué":"en ligne")+(p.featured===true?" · ⭐":""),B("pa|"+p.id,p.active===false?"Activer":"Masquer")+B("pf|"+p.id,p.featured===true?"Retirer ⭐":"⭐ Mettre en avant")+B("pdl|"+p.id,"Supprimer"))).join("");}
+    else if(T==="users"){L=await G("profiles");
+      h=L.map(u=>row(esc(u.displayName||u.id)+(u.suspended===true?" · suspendu":""),esc(u.role||"")+" · "+esc(u.phone||"")+" · "+esc(u.city||"")+", "+esc(u.country||""),u.id===currentUser.uid?"":B("us|"+u.id,u.suspended===true?"Réactiver":"Suspendre")+B("ud|"+u.id,"Supprimer"))).join("");}
+    else{L=await G("reports");
+      h=L.map(r=>row("🚩 "+esc(r.reason||""),sn(r.shopId),B("rm|"+r.id,"Masquer le produit")+B("rd|"+r.id,"Supprimer le signalement"))).join("");}
+    body.innerHTML=h||"<div class='empty'>Rien à afficher.</div>";
+    if(T==="wd")body.insertAdjacentHTML("beforeend","<p style='margin-top:10px'>Confirmer = tu autorises le retrait. L'envoi automatique par FedaPay sera branché plus tard ; en attendant, envoie l'argent toi-même puis clique « Marquer payé » (le solde du vendeur est débité).</p>");
+    if(T==="users")body.insertAdjacentHTML("beforeend","<p style='margin-top:10px'>Supprimer efface le profil, ses boutiques et ses produits. Pour interdire aussi la connexion, supprime le compte dans la section Authentification de ta console.</p>");
+    const st=(x,v)=>updateDoc(doc(db,"withdrawals",x.id),{status:v,reviewedBy:currentUser.uid,reviewedAt:serverTimestamp()});
+    const U=(c,x,d)=>updateDoc(doc(db,c,x.id),d);
+    const F={ap:x=>st(x,"approved"),rj:x=>st(x,"rejected"),
+      pd:x=>{const bt=writeBatch(db);bt.update(doc(db,"withdrawals",x.id),{status:"paid",paidAt:serverTimestamp()});bt.update(doc(db,"wallets",x.ownerUid),{balance:increment(-x.amount)});return bt.commit();},
+      sa:x=>U("shops",x,{active:x.active===false}),sv:x=>U("shops",x,{verified:x.verified!==true}),sd:x=>delShop(x.id),
+      pa:x=>U("products",x,{active:x.active===false}),pf:x=>U("products",x,{featured:x.featured!==true}),pdl:x=>deleteDoc(doc(db,"products",x.id)),
+      us:x=>setUser(x,x.suspended!==true),ud:x=>delUser(x),
+      rm:x=>updateDoc(doc(db,"products",x.productId),{active:false}),rd:x=>deleteDoc(doc(db,"reports",x.id))};
+    body.onclick=async e=>{const b=e.target.closest("[data-a]");if(!b)return;const [k,id]=b.dataset.a.split("|");const x=L.find(y=>y.id===id);if(!x)return;
+      if(/^(sd|pdl|ud|rd)$/.test(k)&&!confirm("Confirmer la suppression ?"))return;
+      try{await F[k](x);notice("Fait.");await loadData();adminLoad(el);}catch(err){notice(authError(err),true);}};
+    body.onchange=async e=>{const p=e.target.closest("[data-plan]");if(!p)return;try{await updateDoc(doc(db,"shops",p.dataset.plan),{plan:p.value});notice("Plan mis à jour.");await loadData();}catch(err){notice(authError(err),true);}};
+    const nb=$("aNew");if(nb)nb.onclick=()=>{closeModal("adminModal");openModal("shopModal");};
+  }catch(e){body.textContent=authError(e);}
 }
 
 setAuthMode("login");
