@@ -38,7 +38,7 @@ footer{text-align:center;color:#555;font-size:11px;padding:28px}
 </style>
 </head>
 <body>
-<div class="bar">💳 Paiement YengaPay en préparation — paiement sécurisé après activation du serveur marchand.</div>
+<div class="bar">💳 Paiement Mobile Money sécurisé par YengaPay — ton argent est protégé jusqu'à la réception de ta commande.</div>
 <header>
   <div class="logo"><b>F2K <span>MARKET</span></b><small>LE MARCHÉ DU MONDE</small></div>
   <nav>
@@ -54,7 +54,7 @@ footer{text-align:center;color:#555;font-size:11px;padding:28px}
 <section class="hero">
   <h1>LE MARCHÉ<br><span>DU MONDE</span></h1>
   <div class="slogan">ABOMEY-CALAVI • BÉNIN • EN LIGNE</div>
-  <p>Découvre des produits de quartier et des produits digitaux. Prépare ton panier et règle tes commandes via le paiement sécurisé YengaPay lorsqu’il sera activé.</p>
+  <p>Découvre des produits de quartier et des produits digitaux. Paie par Mobile Money sur une page sécurisée : ton argent est gardé en séquestre jusqu'à la réception de ta commande.</p>
   <div class="stats"><div><b id="shopCount">0</b><small>BOUTIQUES</small></div><div><b id="productCount">0</b><small>PRODUITS</small></div><div><b id="saleCount">—</b><small>VENTES CONFIRMÉES</small></div></div>
 </section>
 <section class="topshops" id="topShops"></section>
@@ -79,7 +79,7 @@ footer{text-align:center;color:#555;font-size:11px;padding:28px}
 <form id="productForm"><input id="productName" maxlength="120" placeholder="Nom du produit" required><div class="row"><input id="productPrice" type="number" min="1" max="1000000000" step="1" placeholder="Prix en FCFA" required><select id="productCat"><option>Mode et vêtements</option><option>Téléphones et électronique</option><option>Alimentation</option><option>Maison et décoration</option><option>Beauté et santé</option><option>Services</option><option>Formations et digital</option><option>Autres</option></select><select id="productType"><option value="phys">Physique</option><option value="dig">Digital</option></select></div><input id="productImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small style="color:#888">Jusqu'à 4 photos (la première sera la photo principale).</small><input id="productLink" type="url" maxlength="1500" placeholder="Lien du produit digital (facultatif)"><textarea id="productDesc" maxlength="1000" placeholder="Description"></textarea><div class="modalactions"><button class="btn primary" type="submit">Publier</button><button class="btn" data-close="productModal" type="button">Fermer</button></div></form></div></div>
 
 <div class="modal" id="shopsModal"><div class="box"><h2>Boutiques</h2><div id="shopsList"></div><button class="btn" data-close="shopsModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
-<div class="modal" id="cartModal"><div class="box"><h2>Mon panier</h2><div id="cartList"></div><p id="cartTotal"></p><button class="btn primary" id="checkoutBtn" style="width:100%">Payer avec YengaPay</button><p style="margin-top:10px">Le paiement sera lancé uniquement lorsque le serveur sécurisé YengaPay sera configuré. Ne paie jamais via un lien non vérifié.</p><button class="btn" data-close="cartModal" style="width:100%">Fermer</button></div></div>
+<div class="modal" id="cartModal"><div class="box"><h2>Mon panier</h2><div id="cartList"></div><p id="cartTotal"></p><button class="btn primary" id="checkoutBtn" style="width:100%">Payer avec YengaPay</button><p style="margin-top:10px">Paiement Mobile Money sécurisé par YengaPay. Ton argent est gardé en séquestre et n'est versé au vendeur qu'après ta confirmation de réception (ou 7 jours après la livraison).<span id="payMode"></span></p><button class="btn" data-close="cartModal" style="width:100%">Fermer</button></div></div>
 <div class="modal" id="ordersModal"><div class="box"><h2>Mes commandes</h2><div id="ordersList">Connecte-toi pour voir tes commandes.</div><button class="btn" data-close="ordersModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="chatModal"><div class="box"><h2>Messagerie</h2><p>La messagerie arrive bientôt.</p><div id="chatContent">Contacte le vendeur par WhatsApp en attendant.</div><button class="btn" data-close="chatModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
 <div class="modal" id="adminModal"><div class="box"><h2>Administration</h2><p>Espace réservé à l'administrateur du site.</p><div id="adminContent">Connecte-toi avec un compte autorisé.</div><button class="btn" data-close="adminModal" style="width:100%;margin-top:12px">Fermer</button></div></div>
@@ -129,6 +129,7 @@ const COMMISSION = 10; // % prélevé sur les ventes payées en ligne
 const PLANS = {free:{name:"Gratuit",max:5},pro:{name:"Pro",max:50},premium:{name:"Premium",max:1000}};
 // Configuration publique : aucun secret API YengaPay ne doit être placé dans ce fichier.
 const YENGAPAY_ORGANIZATION_ID = "10131759";
+const PAY_MODE = "sandbox"; // passe à "live" quand tu utilises les clés de production
 const YENGAPAY_PROJECT_ID = "37148"; // Projet SANDBOX fourni par l'utilisateur
 // À renseigner après déploiement du backend Firebase/Cloud Run qui crée et vérifie les paiements.
 const YENGAPAY_CREATE_PAYMENT_URL = "https://us-central1-f2kmarket1.cloudfunctions.net/createYengaPayPayment";
@@ -160,7 +161,7 @@ $("cartBtn").addEventListener("click",()=>{renderCart();openModal("cartModal");}
 $("accountBtn").addEventListener("click",()=>{if(currentUser){if(confirm("Voulez-vous vous déconnecter de F2K MARKET ?")){signOut(auth).catch(e=>notice(authError(e),true));}}else openModal("accountModal");});
 $("adminBtn").addEventListener("click",()=>{renderAdminPanel();openModal("adminModal");});
 $("sellBtn").addEventListener("click",()=>{if(!currentUser){openModal("accountModal");notice("Connecte-toi avant de créer une boutique.");return;}
-  if(!currentUser.emailVerified){if(confirm("Confirme d'abord ton adresse e-mail pour ouvrir une boutique. Renvoyer l'e-mail de confirmation ?"))sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Clique le lien, puis recharge la page.")).catch(e=>notice(authError(e),true));return;}
+  if(!currentUser.emailVerified&&!isAdmin){if(confirm("Confirme d'abord ton adresse e-mail pour ouvrir une boutique. Renvoyer l'e-mail de confirmation ?"))sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Clique le lien, puis recharge la page.")).catch(e=>notice(authError(e),true));return;}
   if(allShops.some(x=>x.ownerUid===currentUser.uid)&&!isAdmin){openProduct();return;}
   if(myProfile){if(!$("shopWhatsapp").value)$("shopWhatsapp").value=myProfile.phone||"";if(!$("shopCity").value)$("shopCity").value=[myProfile.city,myProfile.country].filter(Boolean).join(", ");}
   openModal("shopModal");});
@@ -213,12 +214,12 @@ onAuthStateChanged(auth, async user=>{
   $("accountBtn").textContent=user?(user.displayName||user.email||"Mon compte"):"Connexion";
   $("adminBtn").style.display="none";$("dashBtn").style.display=user?"inline-block":"none";$("ordersBtn").style.display=user?"inline-block":"none";
   if(!user){return;}
-  try{const token=await user.getIdTokenResult(true);isAdmin=token.claims.admin===true||(user.email?.toLowerCase()===ADMIN_EMAIL&&user.emailVerified);}catch(err){console.error("Vérification du rôle admin :",err);}
+  try{const token=await user.getIdTokenResult(true);isAdmin=token.claims.admin===true||user.email?.toLowerCase()===ADMIN_EMAIL;}catch(err){console.error("Vérification du rôle admin :",err);}
   // L'adresse permet d'afficher le panneau d'état, mais ne donne jamais les privilèges.
   if(isAdmin || user.email?.toLowerCase()===ADMIN_EMAIL){$("adminBtn").style.display="inline-block";}
   try{const pr=await getDoc(doc(db,"profiles",user.uid));myProfile=pr.exists()?pr.data():null;}catch(e){}
   if(myProfile?.suspended===true){notice("Ton compte est suspendu. Contacte l'administration.",true);signOut(auth);return;}
-  if(!user.emailVerified)notice("Confirme ton adresse e-mail (clique le lien reçu, vérifie aussi les spams), puis recharge la page.");
+  if(!user.emailVerified&&!isAdmin)notice("Confirme ton adresse e-mail (clique le lien reçu, vérifie aussi les spams), puis recharge la page.");
 });
 $("shopForm").addEventListener("submit",async e=>{
   e.preventDefault();if(!currentUser)return notice("Connecte-toi d'abord.",true);
@@ -304,7 +305,7 @@ function renderAdminPanel(){
   if(!currentUser){el.textContent="Connecte-toi avec le compte administrateur.";return;}
   if(!isAdmin){const mail=currentUser.email?.toLowerCase()===ADMIN_EMAIL;
     el.innerHTML=mail?`<p>Ton adresse est reconnue. Confirme-la pour activer l'administration : clique le lien reçu par e-mail, puis le bouton ci-dessous.</p><button class="btn primary" id="aRs" style="width:100%;margin-bottom:8px">Renvoyer l'e-mail de confirmation</button><button class="btn" id="aRf" style="width:100%">J'ai confirmé, actualiser</button>`:"<p>Accès réservé à l'administrateur.</p>";
-    if(mail){$("aRs").onclick=()=>sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Vérifie aussi les spams.")).catch(e=>notice(authError(e),true));$("aRf").onclick=async()=>{try{await currentUser.reload();await currentUser.getIdToken(true);isAdmin=currentUser.emailVerified;renderAdminPanel();}catch(e){notice(authError(e),true);}};}
+    if(mail){$("aRs").onclick=()=>sendEmailVerification(currentUser).then(()=>notice("E-mail envoyé. Vérifie aussi les spams.")).catch(e=>notice(authError(e),true));$("aRf").onclick=async()=>{try{await currentUser.reload();await currentUser.getIdToken(true);isAdmin=currentUser.email?.toLowerCase()===ADMIN_EMAIL;renderAdminPanel();}catch(e){notice(authError(e),true);}};}
     return;
   }
   adminLoad(el);
@@ -341,7 +342,7 @@ const INFO={
  tarifs:["Tarifs vendeurs",()=>`<div class="plans"><div class="plan"><b>Gratuit</b> · 0 FCFA<br><small>${PLANS.free.max} produits, page boutique, commandes WhatsApp.</small></div><div class="plan"><b>Pro</b> · ${money(PRICES.pro)}/mois<br><small>${PLANS.pro.max} produits, priorité d'affichage.</small><button class="btn primary" data-wa="Je veux le plan Pro">Choisir Pro</button></div><div class="plan"><b>Premium</b> · ${money(PRICES.premium)}/mois<br><small>Produits illimités, boutique mise en avant.</small><button class="btn primary" data-wa="Je veux le plan Premium">Choisir Premium</button></div><div class="plan"><b>⭐ Mettre un produit en avant</b><br><small>7 jours : ${money(PRICES.feat7)} · 30 jours : ${money(PRICES.feat30)}. En tête de liste avec badge.</small><button class="btn" data-wa="Je veux mettre un produit en avant">Demander</button></div><div class="plan"><b>✔ Badge Vendeur vérifié</b> · ${money(PRICES.verified)}<br><small>Vérification d'identité, plus de confiance, plus de ventes.</small><button class="btn" data-wa="Je veux le badge vérifié">Demander</button></div></div><h3>Commission</h3><p>${COMMISSION} % sur chaque vente payée en ligne via F2K MARKET. Aucune commission sur les ventes conclues hors plateforme.</p>`],
  attente:["Paiement en ligne bientôt","<p>Laisse ton e-mail : tu seras prévenu dès l'ouverture des paiements Mobile Money.</p><form id=\"waitForm\"><input id=\"waitMail\" type=\"email\" placeholder=\"Ton e-mail\" required><button class=\"btn primary\" style=\"width:100%\">Me prévenir</button></form>"],
  comment:["Comment ça marche","<h3>Acheteur</h3>"+L(["Trouve un produit.","Clique sur Commander (WhatsApp) et discute avec le vendeur.","Reçois ou télécharge ton achat."])+"<h3>Vendeur</h3>"+L(["Crée un compte et ta boutique.","Publie tes produits avec photos.","Reçois les commandes sur WhatsApp. Passe Pro pour vendre plus."])],
- faq:["FAQ",()=>"<h3>Comment payer ?</h3><p>Le paiement YengaPay sera activé après déploiement et vérification du serveur sécurisé. Une redirection seule ne prouve pas un paiement réussi.</p><h3>Combien coûte la vente ?</h3><p>Boutique gratuite jusqu'à "+PLANS.free.max+" produits. Commission de "+COMMISSION+" % sur les ventes payées en ligne.</p><h3>Comment devenir vendeur vérifié ?</h3><p>Demande le badge depuis Tarifs.</p><h3>Un problème avec un vendeur ?</h3><p>Écris-nous via Contact avec le nom de la boutique.</p>"],
+ faq:["FAQ",()=>"<h3>Comment payer ?</h3><p>Par Mobile Money, sur la page sécurisée YengaPay. Ton argent est gardé en séquestre jusqu'à ce que tu confirmes la réception de ta commande, ou 7 jours après la livraison.</p><h3>Que se passe-t-il si le vendeur annule ?</h3><p>Tu es remboursé : l'argent n'est jamais versé au vendeur avant la livraison.</p><h3>Combien coûte la vente ?</h3><p>Boutique gratuite jusqu'à "+PLANS.free.max+" produits. Commission de "+COMMISSION+" % sur les ventes payées en ligne.</p><h3>Comment devenir vendeur vérifié ?</h3><p>Demande le badge depuis Tarifs.</p><h3>Un problème avec un vendeur ?</h3><p>Écris-nous via Contact avec le nom de la boutique.</p>"],
  apropos:["Qui sommes-nous",()=>(SITE.photos&&SITE.photos.length?`<div class="gal">${SITE.photos.map(u=>`<img src="${esc(u)}" alt="">`).join("")}</div>`:"")+`<p style="white-space:pre-wrap">${esc(SITE.about||"F2K MARKET est le marché en ligne d'Abomey-Calavi et du Bénin, qui rapproche vendeurs et acheteurs.")}</p>`+info(SITE)],
  contact:["Contact",()=>info(SITE)+`<button class="btn primary" style="width:100%;margin-top:10px" data-wa="Bonjour, j'ai une question">Écrire sur WhatsApp</button>`],
  mentions:["Mentions légales",()=>`<p><b>${esc(SITE.company||SITE.name||"F2K MULTISERVICE / NET229")}</b></p>`+info(SITE)],
@@ -370,13 +371,13 @@ async function openDash(){openModal("dashModal");const el=$("dashContent");const
   await renderWallet(el,sh);await renderSellerOrders(el);await renderVerif(el,sh);renderRef(el);
   }catch(e){el.textContent=authError(e);}}
 async function renderWallet(el,sh){
-  let bal=0,list=[];
-  try{let w=await getDoc(doc(db,"wallets",currentUser.uid));if(!w.exists()){await setDoc(doc(db,"wallets",currentUser.uid),{balance:0,ownerUid:currentUser.uid});w=await getDoc(doc(db,"wallets",currentUser.uid));}bal=w.exists()?Number(w.data().balance)||0:0;
+  let bal=0,escrow=0,list=[];
+  try{let w=await getDoc(doc(db,"wallets",currentUser.uid));if(!w.exists()){await setDoc(doc(db,"wallets",currentUser.uid),{balance:0,ownerUid:currentUser.uid});w=await getDoc(doc(db,"wallets",currentUser.uid));}bal=w.exists()?Number(w.data().balance)||0:0;escrow=w.exists()?Number(w.data().pending)||0:0;
     const r=await getDocs(query(collection(db,"withdrawals"),where("ownerUid","==",currentUser.uid),limit(50)));
     list=r.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}catch(e){console.error(e);}
   const pend=list.filter(x=>["pending","approved"].includes(x.status)).reduce((n,x)=>n+x.amount,0),avail=Math.max(0,bal-pend);
   const st={pending:"⏳ En attente",approved:"✔ Confirmé, paiement en cours",paid:"✅ Payé",rejected:"❌ Refusé"};
-  el.insertAdjacentHTML("afterbegin",`<div class="plan" style="margin-bottom:12px"><b>💰 Mon porte-monnaie</b><div class="price" style="font-size:22px">${money(bal)}</div><small>Disponible pour retrait : ${money(avail)} · minimum ${money(MIN_WITHDRAW)} · commission de ${COMMISSION} % déjà déduite</small><form id="wdForm" style="margin-top:10px"><input id="wdAmount" type="number" min="${MIN_WITHDRAW}" step="1" placeholder="Montant en FCFA" required><select id="wdOp">${WITHDRAW_OPS.map(o=>`<option>${o}</option>`).join("")}</select><input id="wdPhone" type="tel" maxlength="20" placeholder="Numéro Mobile Money" required><button class="btn primary" style="width:100%">Demander un retrait</button></form>${list.map(x=>`<div class="listrow"><div><b>${money(x.amount)}</b><small>${esc(x.operator)} · ${esc(x.phone)}</small></div><span>${st[x.status]||esc(x.status)}</span></div>`).join("")}</div>`);
+  el.insertAdjacentHTML("afterbegin",`<div class="plan" style="margin-bottom:12px"><b>💰 Mon porte-monnaie</b><div class="price" style="font-size:22px">${money(bal)}</div><small>En séquestre (livraison à confirmer) : ${money(escrow)}</small><br><small>Disponible pour retrait : ${money(avail)} · minimum ${money(MIN_WITHDRAW)} · commission de ${COMMISSION} % déjà déduite</small><form id="wdForm" style="margin-top:10px"><input id="wdAmount" type="number" min="${MIN_WITHDRAW}" step="1" placeholder="Montant en FCFA" required><select id="wdOp">${WITHDRAW_OPS.map(o=>`<option>${o}</option>`).join("")}</select><input id="wdPhone" type="tel" maxlength="20" placeholder="Numéro Mobile Money" required><button class="btn primary" style="width:100%">Demander un retrait</button></form>${list.map(x=>`<div class="listrow"><div><b>${money(x.amount)}</b><small>${esc(x.operator)} · ${esc(x.phone)}</small></div><span>${st[x.status]||esc(x.status)}</span></div>`).join("")}</div>`);
   $("wdForm").onsubmit=async e=>{e.preventDefault();const a=Number($("wdAmount").value),ph=$("wdPhone").value.replace(/[^\d+]/g,"");
     if(!Number.isSafeInteger(a)||a<MIN_WITHDRAW)return notice("Minimum de retrait : "+money(MIN_WITHDRAW),true);
     if(a>avail)return notice("Montant supérieur au solde disponible.",true);
@@ -397,7 +398,7 @@ async function delShop(id){const r=await getDocs(query(collection(db,"products")
 async function setUser(u,off){const b=writeBatch(db);b.update(doc(db,"profiles",u.id),{suspended:off});allShops.filter(x=>x.ownerUid===u.id).forEach(x=>b.update(doc(db,"shops",x.id),{active:!off}));await b.commit();}
 async function delUser(u){const [ps,hs]=await Promise.all([getDocs(query(collection(db,"products"),where("ownerUid","==",u.id),limit(200))),getDocs(query(collection(db,"shops"),where("ownerUid","==",u.id),limit(50)))]);const b=writeBatch(db);ps.docs.concat(hs.docs).forEach(d=>b.delete(d.ref));b.delete(doc(db,"profiles",u.id));await b.commit();}
 async function adminLoad(el){
-  el.innerHTML=`<div class="mini" style="flex-wrap:wrap;margin-bottom:10px">${[["stats","Tableau de bord"],["wd","Retraits"],["shops","Boutiques"],["prods","Produits"],["users","Utilisateurs"],["ver","Vérifications"],["rep","Signalements et avis"],["set","Paramètres du site"]].map(([k,l])=>`<button class="btn ${k===adminTab?"primary":""}" data-tab="${k}">${l}</button>`).join("")}</div><div id="adminBody">Chargement…</div>`;
+  el.innerHTML=`<div class="mini" style="flex-wrap:wrap;margin-bottom:10px">${[["stats","Tableau de bord"],["wd","Retraits"],["ord","Commandes"],["shops","Boutiques"],["prods","Produits"],["users","Utilisateurs"],["ver","Vérifications"],["rep","Signalements et avis"],["set","Paramètres du site"]].map(([k,l])=>`<button class="btn ${k===adminTab?"primary":""}" data-tab="${k}">${l}</button>`).join("")}</div><div id="adminBody">Chargement…</div>`;
   el.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{adminTab=b.dataset.tab;adminLoad(el);});
   const body=$("adminBody"),T=adminTab;
   const G=async(c,q)=>(await getDocs(q||query(collection(db,c),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}));
@@ -415,6 +416,8 @@ async function adminLoad(el){
       h=L.map(p=>row(esc(p.name),money(p.price)+" · "+sn(p.shopId)+" · "+(p.active===false?"masqué":"en ligne")+(p.featured===true?" · ⭐":""),B("pa|"+p.id,p.active===false?"Activer":"Masquer")+B("pf|"+p.id,p.featured===true?"Retirer ⭐":"⭐ Mettre en avant")+B("pdl|"+p.id,"Supprimer"))).join("");}
     else if(T==="users"){L=await G("profiles");
       h=L.map(u=>row(esc(u.displayName||u.id)+(u.suspended===true?" · suspendu":""),esc(u.role||"")+" · "+esc(u.phone||"")+" · "+esc(u.city||"")+", "+esc(u.country||"")+(u.referredBy?" · parrain : "+esc(u.referredBy.slice(0,6)):""),u.id===currentUser.uid?"":B("us|"+u.id,u.suspended===true?"Réactiver":"Suspendre")+B("ud|"+u.id,"Supprimer"))).join("");}
+    else if(T==="ord"){L=await G("orders");L.sort((a,b)=>(b.refundDue===true)-(a.refundDue===true)||(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+      h=L.slice(0,200).map(x=>row("#"+x.id.slice(0,6).toUpperCase()+" · "+money(x.total)+" · "+esc(x.shopName||""),esc(x.buyerName||"")+" · "+esc(x.buyerPhone||"")+" · "+(OST[x.status]||esc(x.status))+(x.refundDue===true?" · ⚠️ REMBOURSEMENT À FAIRE":x.refunded===true?" · remboursée":""),x.refundDue===true?B("rf|"+x.id,"Remboursement fait","primary"):"")).join("");}
     else if(T==="ver"){L=(await G("verifications")).filter(x=>x.status==="pending");
       h=L.map(v=>row("Dossier · "+sn(v.shopId),`<a href="${esc(v.idUrl)}" target="_blank" rel="noopener" style="color:#ff6b00">Pièce d'identité</a> · <a href="${esc(v.shopUrl)}" target="_blank" rel="noopener" style="color:#ff6b00">Photo boutique</a>`,B("va|"+v.id,"Approuver ✔","primary")+B("vr|"+v.id,"Refuser"))).join("");}
     else if(T==="set"){
@@ -438,7 +441,7 @@ async function adminLoad(el){
       sa:x=>U("shops",x,{active:x.active===false}),sv:x=>U("shops",x,{verified:x.verified!==true}),sd:x=>delShop(x.id),
       pa:x=>U("products",x,{active:x.active===false}),pf:x=>U("products",x,{featured:x.featured!==true}),pdl:x=>deleteDoc(doc(db,"products",x.id)),
       us:x=>setUser(x,x.suspended!==true),ud:x=>delUser(x),
-      rm:x=>updateDoc(doc(db,"products",x.productId),{active:false}),rd:x=>deleteDoc(doc(db,"reports",x.id)),rv:x=>deleteDoc(doc(db,"reviews",x.id)),
+      rm:x=>updateDoc(doc(db,"products",x.productId),{active:false}),rd:x=>deleteDoc(doc(db,"reports",x.id)),rv:x=>deleteDoc(doc(db,"reviews",x.id)),rf:x=>updateDoc(doc(db,"orders",x.id),{refundDue:false,refunded:true,refundedAt:serverTimestamp()}),
       va:x=>{const bt=writeBatch(db);bt.update(doc(db,"verifications",x.id),{status:"approved",reviewedAt:serverTimestamp()});bt.update(doc(db,"shops",x.shopId),{verified:true});return bt.commit();},vr:x=>updateDoc(doc(db,"verifications",x.id),{status:"rejected",reviewedAt:serverTimestamp()})};
     body.onclick=async e=>{const b=e.target.closest("[data-a]");if(!b)return;const [k,id]=b.dataset.a.split("|");const x=L.find(y=>y.id===id);if(!x)return;
       if(/^(sd|pdl|ud|rd|rv)$/.test(k)&&!confirm("Confirmer la suppression ?"))return;
@@ -449,7 +452,7 @@ async function adminLoad(el){
 }
 
 const TYL={phys:"🏬 Physique",dig:"🌐 En ligne",mix:"🔀 Mixte"};
-const OST={pending:"⏳ En attente",confirmed:"✅ Confirmée",delivered:"🚚 Livrée",received:"✔ Reçue",cancelled:"❌ Annulée"};
+const OST={awaiting_payment:"⏳ En attente de paiement",paid:"💰 Payée (en séquestre)",expired:"⌛ Expirée",pending:"⏳ En attente",confirmed:"✅ Confirmée",delivered:"🚚 Livrée",received:"✔ Reçue",cancelled:"❌ Annulée"};
 {const q=new URLSearchParams(location.search).get("ref");if(q)localStorage.setItem("f2k_ref",q.slice(0,60));}
 function compress(file,max=1200,type="image/jpeg"){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext("2d");if(type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);}x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(Error("Image illisible")),type,0.82);};im.onerror=()=>rej(Error("Image illisible"));im.src=u;});}
 async function upImg(f,path,max=1200,type="image/jpeg"){const b=await compress(f,max,type);const r=ref(storage,path);await uploadBytes(r,b,{contentType:type});return getDownloadURL(r);}
@@ -487,12 +490,12 @@ window.addEventListener("hashchange",route);
 async function myOrders(f){const r=await getDocs(query(collection(db,"orders"),where(f,"==",currentUser.uid),limit(100)));return r.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));}
 const olines=o=>(o.items||[]).map(i=>esc(i.name)+" ×"+i.qty).join(", ");
 const setOrder=(id,st)=>updateDoc(doc(db,"orders",id),{status:st,updatedAt:serverTimestamp()});
-async function renderSellerOrders(el){let l=[];try{l=await myOrders("sellerUid");}catch(e){}
-  el.insertAdjacentHTML("beforeend",`<div id="sOrders" style="margin-top:12px"><h3>Commandes reçues (${l.length})</h3>${l.map(o=>`<div class="listrow"><div><b>#${o.id.slice(0,6).toUpperCase()} · ${money(o.total)}</b><small>${olines(o)}</small><small>${esc(o.buyerName)} · ${esc(o.buyerPhone)} · ${OST[o.status]||esc(o.status)}</small></div><div class="mini" style="flex-wrap:wrap">${o.status==="pending"?`<button class="btn primary" data-os="confirmed|${o.id}">Confirmer</button><button class="btn" data-os="cancelled|${o.id}">Annuler</button>`:o.status==="confirmed"?`<button class="btn primary" data-os="delivered|${o.id}">Marquer livrée</button><button class="btn" data-os="cancelled|${o.id}">Annuler</button>`:""}<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${String(o.buyerPhone||"").replace(/\D/g,"")}">WhatsApp</a></div></div>`).join("")||"<div class='empty'>Aucune commande.</div>"}</div>`);
+async function renderSellerOrders(el){let l=[];try{l=(await myOrders("sellerUid")).filter(o=>!["awaiting_payment","expired"].includes(o.status));}catch(e){}
+  el.insertAdjacentHTML("beforeend",`<div id="sOrders" style="margin-top:12px"><h3>Commandes reçues (${l.length})</h3>${l.map(o=>`<div class="listrow"><div><b>#${o.id.slice(0,6).toUpperCase()} · ${money(o.total)}</b><small>${olines(o)}</small><small>${esc(o.buyerName)} · ${esc(o.buyerPhone)} · ${OST[o.status]||esc(o.status)}</small></div><div class="mini" style="flex-wrap:wrap">${o.status==="paid"?`<button class="btn primary" data-os="confirmed|${o.id}">Confirmer</button><button class="btn" data-os="cancelled|${o.id}">Annuler</button>`:o.status==="confirmed"?`<button class="btn primary" data-os="delivered|${o.id}">Marquer livrée</button><button class="btn" data-os="cancelled|${o.id}">Annuler</button>`:""}<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${String(o.buyerPhone||"").replace(/\D/g,"")}">WhatsApp</a></div></div>`).join("")||"<div class='empty'>Aucune commande.</div>"}</div>`);
   $("sOrders").onclick=async e=>{const b=e.target.closest("[data-os]");if(!b)return;const [st,id]=b.dataset.os.split("|");try{await setOrder(id,st);notice("Commande mise à jour.");openDash();}catch(err){notice(authError(err),true);}};}
 async function openOrders(){openModal("ordersModal");const el=$("ordersList");el.textContent="Chargement…";
   try{const l=await myOrders("buyerUid");
-    el.innerHTML=l.map(o=>{const sh=allShops.find(x=>x.id===o.shopId)||{};const dg=String(sh.whatsapp||"").replace(/\D/g,"");return `<div class="listrow"><div><b>#${o.id.slice(0,6).toUpperCase()} · ${esc(o.shopName||"")} · ${money(o.total)}</b><small>${olines(o)}</small><small>${OST[o.status]||esc(o.status)}</small></div><div class="mini" style="flex-wrap:wrap">${o.status==="pending"?`<button class="btn" data-bo="cancelled|${o.id}">Annuler</button>`:o.status==="delivered"?`<button class="btn primary" data-bo="received|${o.id}">J'ai reçu ma commande</button>`:""}${dg?`<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${dg}">WhatsApp</a>`:""}</div></div>`;}).join("")||"<div class='empty'>Aucune commande.</div>";
+    el.innerHTML=l.map(o=>{const sh=allShops.find(x=>x.id===o.shopId)||{};const dg=String(sh.whatsapp||"").replace(/\D/g,"");return `<div class="listrow"><div><b>#${o.id.slice(0,6).toUpperCase()} · ${esc(o.shopName||"")} · ${money(o.total)}</b><small>${olines(o)}</small><small>${OST[o.status]||esc(o.status)}</small></div><div class="mini" style="flex-wrap:wrap">${o.status==="awaiting_payment"?`<button class="btn" data-bo="cancelled|${o.id}">Annuler</button>`:o.status==="delivered"?`<button class="btn primary" data-bo="received|${o.id}">J'ai reçu ma commande</button>`:""}${dg?`<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${dg}">WhatsApp</a>`:""}</div></div>`;}).join("")||"<div class='empty'>Aucune commande.</div>";
     el.onclick=async e=>{const b=e.target.closest("[data-bo]");if(!b)return;const [st,id]=b.dataset.bo.split("|");try{await setOrder(id,st);notice("Commande mise à jour.");openOrders();}catch(err){notice(authError(err),true);}};
   }catch(e){el.textContent=authError(e);}}
 $("ordersBtn").addEventListener("click",openOrders);
@@ -503,6 +506,8 @@ async function renderVerif(el,sh){let v=null;try{const d=await getDoc(doc(db,"ve
 function renderRef(el){const u=location.href.split("#")[0].split("?")[0]+"?ref="+currentUser.uid;el.insertAdjacentHTML("beforeend",`<div class="plan" style="margin-top:12px"><b>🎁 Parrainage</b><br><small>Invite un vendeur avec ce lien : un mois offert quand son compte est validé par l'administrateur.</small><input readonly value="${esc(u)}" onclick="this.select()"></div>`);}
 $("shopType").addEventListener("change",()=>{$("shopAddress").style.display=$("shopType").value==="dig"?"none":"block";});
 $("cat").addEventListener("change",renderProducts);$("cityF").addEventListener("change",renderProducts);
+{const pm=$("payMode");if(pm&&PAY_MODE!=="live")pm.innerHTML=" <b style='color:#ff9b70'>MODE TEST : aucun vrai argent n'est débité.</b>";}
+{const u=new URL(location.href);if(u.searchParams.get("paiement")==="retour"){u.searchParams.delete("paiement");try{history.replaceState(null,"",u.pathname+u.search+u.hash);}catch(e){}setTimeout(()=>notice("Merci ! Ton paiement est en cours de vérification. Si tu as payé, ta commande apparaît dans « Mes commandes » dans quelques secondes."),900);}}
 setAuthMode("login");
 loadSite();
 loadData().then(route);
